@@ -1,9 +1,11 @@
 version: '3.8'
+
 services:
+
   ecommerce-app:
     build: .
     ports:
-      - "8080:8080"
+      - "3000:3000"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/ecommerce
       - SPRING_DATASOURCE_USERNAME=ecommerce_user
@@ -15,6 +17,7 @@ services:
       options:
         max-size: "200k"
         max-file: "10"
+
   db:
     image: postgres:13
     ports:
@@ -24,6 +27,7 @@ services:
       - POSTGRES_USER=ecommerce_user
       - POSTGRES_PASSWORD=passworduntudkecommerce1234)(*
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ecommerce_data:/var/lib/postgresql/data
+
 volumes:
-  postgres_data:
+  ecommerce_data:
