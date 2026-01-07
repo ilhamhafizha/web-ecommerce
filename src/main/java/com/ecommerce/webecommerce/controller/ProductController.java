@@ -1,12 +1,20 @@
 package com.ecommerce.webecommerce.controller;
 
+import com.ecommerce.webecommerce.model.ErrorResponse;
 import com.ecommerce.webecommerce.model.ProductRequest;
 import com.ecommerce.webecommerce.model.ProductResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController // no usages
 @RequestMapping("products")
@@ -45,7 +53,7 @@ public class ProductController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
         return ResponseEntity.ok(
                 ProductResponse.builder()
                         .name(request.getName())
@@ -56,7 +64,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request,
+    public ResponseEntity<ProductResponse> updateProduct(@RequestBody @Valid ProductRequest request,
                                                          @PathVariable(value = "id") Long productId) {
         return ResponseEntity.ok(
                 ProductResponse.builder()
@@ -65,5 +73,21 @@ public class ProductController {
                         .description(request.getDescription())
                         .build()
         );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(objectError -> {
+            String fieldName = ((FieldError) objectError).getField();
+            String errorMessage = objectError.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ErrorResponse.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(errors.toString())
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 }
