@@ -120,8 +120,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(Long id) {
+    @Transactional
+    public void delete(Long productId) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+        List<ProductCategory> productCategories = productCategoryRepository.findCategoriesByProductId(productId);
 
+        productCategoryRepository.deleteAll(productCategories);
+        productRepository.delete(existingProduct);
     }
 
     private List<Category> getCategoriesByIds(List<Long> categoryIds) {
