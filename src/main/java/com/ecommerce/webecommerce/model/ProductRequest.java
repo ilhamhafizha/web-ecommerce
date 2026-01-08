@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 @Data
@@ -25,4 +26,15 @@ public class ProductRequest {
     @NotNull(message = "Deskripsi produk tidak boleh null")
     @Size(max = 1000, message = "Deskripsi produk tidak boleh lebih dari 1000 karakter")
     String description;
+
+    @NotNull(message = "Stok tidak boleh kosong")
+    @Min(value = 0, message = "Stok tidak boleh kurang atau sama dengan 0")
+    private Integer stockQuantity;
+
+    @NotNull(message = "Berat tidak boleh kosong")
+    @Min(value = 1000, message = "Berat tidak boleh kurang dari 1000 gram ")
+    private BigDecimal weight;
+
+    @NotEmpty(message = "Harus ada satu kategori yang dipilih")
+    private List<Long> categoryIds;
 }
