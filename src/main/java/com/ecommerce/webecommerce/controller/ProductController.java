@@ -3,6 +3,7 @@ package com.ecommerce.webecommerce.controller;
 import com.ecommerce.webecommerce.model.ErrorResponse;
 import com.ecommerce.webecommerce.model.ProductRequest;
 import com.ecommerce.webecommerce.model.ProductResponse;
+import com.ecommerce.webecommerce.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,59 +21,46 @@ import java.util.Map;
 @RequestMapping("products")
 public class ProductController {
 
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+
     // localhost:3000/products/2
     @GetMapping("/{id}") // no usages
     public ResponseEntity<ProductResponse> findProductById(
             @PathVariable(value = "id") Long productId) {
-        return ResponseEntity.ok(
-                ProductResponse.builder()
-                        .name("product" + productId)
-                        .price(BigDecimal.ONE)
-                        .description("deskripsi produk")
-                        .build()
-        );
+        ProductResponse productResponse = productService.findById(productId);
+        return ResponseEntity.ok(productResponse);
     }
 
     // localhost:3000/products
     @GetMapping("") // no usages
     public ResponseEntity<List<ProductResponse>> getAllProduct() {
-        return ResponseEntity.ok(
-                List.of(
-                        ProductResponse.builder()
-                                .name("product 1")
-                                .price(BigDecimal.ONE)
-                                .description("deskripsi produk")
-                                .build(),
-                        ProductResponse.builder()
-                                .name("product 1")
-                                .price(BigDecimal.ONE)
-                                .description("deskripsi produk")
-                                .build()
-                )
-        );
+        List<ProductResponse> productResponse = productService.findAll();
+        return ResponseEntity.ok(productResponse);
     }
 
     @PostMapping("")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-        return ResponseEntity.ok(
-                ProductResponse.builder()
-                        .name(request.getName())
-                        .price(request.getPrice())
-                        .description(request.getDescription())
-                        .build()
-        );
+        ProductResponse response = productService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(@RequestBody @Valid ProductRequest request,
                                                          @PathVariable(value = "id") Long productId) {
-        return ResponseEntity.ok(
-                ProductResponse.builder()
-                        .name(request.getName() + productId)
-                        .price(request.getPrice())
-                        .description(request.getDescription())
-                        .build()
-        );
+      ProductResponse response = productService.update(productId,request);
+      return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@RequestBody @Valid ProductRequest request,
+                                                         @PathVariable(value = "id") Long productId) {
+       productService.delete(productId);
+       return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
