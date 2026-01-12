@@ -1,7 +1,7 @@
 package com.ecommerce.webecommerce.config.middleware;
 
-import com.ecommerce.webecommerce.common.errors.BadRequestException;
-import com.ecommerce.webecommerce.common.errors.ResourceNotFoundException;
+import com.ecommerce.webecommerce.UsernameAlreadyExistsException;
+import com.ecommerce.webecommerce.common.errors.*;
 import com.ecommerce.webecommerce.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,11 @@ import java.time.LocalDateTime;
 @Slf4j // logging
 public class GenericExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({
+            ResourceNotFoundException.class,
+            UserNotFoundException.class,
+            RoleNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody ErrorResponse
     handleResourceNotFoundException(HttpServletRequest req, ResourceNotFoundException exception) {
@@ -48,4 +52,28 @@ public class GenericExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public @ResponseBody ErrorResponse handleUnauthorizedException(HttpServletRequest req, Exception exception) {
+        return ErrorResponse.builder()
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message(exception.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler({
+            UsernameAlreadyExistsException.class,
+            EmailAlreadyExistsException.class
+    })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public @ResponseBody ErrorResponse handleConflictException(HttpServletRequest req, Exception exception) {
+        return ErrorResponse.builder()
+                .code(HttpStatus.CONFLICT.value())
+                .message(exception.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
 }
