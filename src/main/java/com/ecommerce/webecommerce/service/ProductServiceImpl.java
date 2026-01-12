@@ -5,6 +5,7 @@ import com.ecommerce.webecommerce.entity.Category;
 import com.ecommerce.webecommerce.entity.Product;
 import com.ecommerce.webecommerce.entity.ProductCategory;
 import com.ecommerce.webecommerce.model.CategoryResponse;
+import com.ecommerce.webecommerce.model.PaginatedProductResponse;
 import com.ecommerce.webecommerce.model.ProductRequest;
 import com.ecommerce.webecommerce.model.ProductResponse;
 import com.ecommerce.webecommerce.repository.CategoryRepository;
@@ -12,6 +13,8 @@ import com.ecommerce.webecommerce.repository.ProductCategoryRepository;
 import com.ecommerce.webecommerce.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +37,27 @@ public class ProductServiceImpl implements ProductService {
                     return ProductResponse.fromProductAndCategories(product, productCategories);
                 })
                 .toList();
+    }
+
+    @Override
+    public Page<ProductResponse> findByPage(Pageable pageable) {
+        return productRepository.findByPageable(pageable)
+                .map(product -> {
+                    List<CategoryResponse> productCategories = getProductCategories(product.getProductId());
+                    return ProductResponse.fromProductAndCategories(product, productCategories);
+                });
+    }
+
+
+    @Override
+    public Page<ProductResponse> findByNameAndPageable(String name, Pageable pageable) {
+        name = "%" + name + "%";
+        name = name.toLowerCase();
+        return productRepository.findByNamePageable(name, pageable)
+                .map(product -> {
+                    List<CategoryResponse> productCategories = getProductCategories(product.getProductId());
+                    return ProductResponse.fromProductAndCategories(product, productCategories);
+                });
     }
 
     @Override
@@ -128,6 +152,19 @@ public class ProductServiceImpl implements ProductService {
 
         productCategoryRepository.deleteAll(productCategories);
         productRepository.delete(existingProduct);
+    }
+
+
+    @Override
+    public PaginatedProductResponse convertProductPage(Page<ProductResponse> productPage) {
+        return PaginatedProductResponse.builder()
+                .data(productPage.getContent())
+                .pageNo(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
     private List<Category> getCategoriesByIds(List<Long> categoryIds) {
