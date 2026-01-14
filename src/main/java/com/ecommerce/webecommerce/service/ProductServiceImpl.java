@@ -63,7 +63,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse findById(Long productId) {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Product not found with id: " + productId));
         List<CategoryResponse> productCategories = getProductCategories(productId);
         return ProductResponse.fromProductAndCategories(existingProduct, productCategories);
     }
@@ -78,12 +79,13 @@ public class ProductServiceImpl implements ProductService {
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
                 .price(productRequest.getPrice())
+                .userId(productRequest.getUser().getUserId())
                 .stockQuantity(productRequest.getStockQuantity())
                 .weight(productRequest.getWeight())
                 .build();
 
         Product createdProduct = productRepository.save(product);
-        List< ProductCategory> productCategories = categories.stream()
+        List<ProductCategory> productCategories = categories.stream()
                 .map(category -> {
                     ProductCategory productCategory = ProductCategory.builder().build();
                     ProductCategory.ProductCategoryId productCategoryId = new ProductCategory.ProductCategoryId();
@@ -96,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
 
         productCategoryRepository.saveAll(productCategories);
 
-        List< CategoryResponse> categoryResponseList = categories.stream().map(
+        List<CategoryResponse> categoryResponseList = categories.stream().map(
                         CategoryResponse::fromCategory)
                 .toList();
 
@@ -107,7 +109,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse update(Long productId, ProductRequest productRequest) {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Product not found with id: " + productId));
+
 
         List<Category> categories = getCategoriesByIds(productRequest.getCategoryIds());
 

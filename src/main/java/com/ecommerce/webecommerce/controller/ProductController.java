@@ -1,12 +1,10 @@
 package com.ecommerce.webecommerce.controller;
 
-import com.ecommerce.webecommerce.model.ErrorResponse;
-import com.ecommerce.webecommerce.model.PaginatedProductResponse;
-import com.ecommerce.webecommerce.model.ProductRequest;
-import com.ecommerce.webecommerce.model.ProductResponse;
+import com.ecommerce.webecommerce.model.*;
 import com.ecommerce.webecommerce.service.ProductService;
 import jakarta.validation.Valid;
-import jakarta.xml.bind.annotation.XmlType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +15,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +72,11 @@ public class ProductController {
 
     @PostMapping("")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserInfo userInfo = (UserInfo) authentication.getPrincipal();
+
+        request.setUser(userInfo.getUser());
+
         ProductResponse response = productService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
