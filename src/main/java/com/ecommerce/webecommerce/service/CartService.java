@@ -4,6 +4,7 @@ import com.ecommerce.webecommerce.model.CartItemResponse;
 
 import java.util.List;
 
+
 public interface CartService {
 
     void addItemToCart(Long userId, Long productId, int quantity);

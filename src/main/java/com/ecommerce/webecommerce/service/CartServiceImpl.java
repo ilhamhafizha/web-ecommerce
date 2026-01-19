@@ -17,6 +17,7 @@ import com.ecommerce.webecommerce.model.CartItemResponse;
 import com.ecommerce.webecommerce.repository.CartItemRepository;
 import com.ecommerce.webecommerce.repository.CartRepository;
 import com.ecommerce.webecommerce.repository.ProductRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException("product with id " + productId + " is not found"));
 
-        if (product.getUserId().equals(userId)) {
+        if (product.getUserId() != null && product.getUserId().equals(userId)) {
             throw new BadRequestException("Cannot add your own product to cart");
         }
 

@@ -2,6 +2,7 @@ package com.ecommerce.webecommerce.controller;
 
 import com.ecommerce.webecommerce.model.*;
 import com.ecommerce.webecommerce.service.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 @RestController // no usages
 @RequestMapping("products")
+@SecurityRequirement(name = "Bearer")
 public class ProductController {
 
     private final ProductService productService;
