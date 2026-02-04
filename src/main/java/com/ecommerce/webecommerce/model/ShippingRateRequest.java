@@ -23,7 +23,6 @@ public class ShippingRateRequest {
     @Data
     @Builder
     public static class Address {
-
         private String streetAddress;
         private String city;
         private String state;

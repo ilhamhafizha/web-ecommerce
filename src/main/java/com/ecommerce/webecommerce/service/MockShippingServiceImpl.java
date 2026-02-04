@@ -33,7 +33,6 @@ public class MockShippingServiceImpl implements
 
     @Override
     public ShippingRateResponse calculateShippingRate(ShippingRateRequest request) {
-        // shipping_fee = base_rate + (weight * rate per kg);
         BigDecimal shippingFee = BASE_RATE.add(
                         request.getTotalWeightInGrams().divide(BigDecimal.valueOf(1000)).multiply(RATE_PER_KG))
                 .setScale(2, RoundingMode.HALF_UP);
@@ -57,11 +56,16 @@ public class MockShippingServiceImpl implements
         order.setAwbNumber(awbNumber);
         orderRepository.save(order);
 
+        BigDecimal shippingFee = BASE_RATE.add(
+                        request.getTotalWeightInGrams().divide(BigDecimal.valueOf(1000)).multiply(RATE_PER_KG))
+                .setScale(2, RoundingMode.HALF_UP);
+
         String estimatedDeliveryTime = "3 - 5 hari kerja";
 
         return ShippingOrderResponse.builder()
                 .awbNumber(awbNumber)
                 .estimatedDeliveryTime(estimatedDeliveryTime)
+                .shippingFee(shippingFee)
                 .build();
     }
 

@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ecommerce.webecommerce.model.ShippingRateRequest;
+import com.ecommerce.webecommerce.model.ShippingRateResponse;
 import com.ecommerce.webecommerce.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
